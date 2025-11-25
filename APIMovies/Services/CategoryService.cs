@@ -50,7 +50,21 @@ namespace APIMovies.Services
 
         public async Task<bool> DeleteCategoryAsync(int id)
         {
-            throw new NotImplementedException();
+            var categoryExists = await _categoryRepository.GetCategoryAsync(id);
+
+            if (categoryExists == null)
+            {
+                throw new InvalidOperationException($"No se encontró una categoría con el id de '{id}'");
+            }
+
+            var categoryDeleted = await _categoryRepository.DeleteCategoryAsync(id);
+
+            if (!categoryDeleted)
+            {
+                throw new Exception("Ocurrió un error al eliminar la categoría");
+            }
+
+            return categoryDeleted;
         }
 
         public async Task<ICollection<CategoryDto>> GetCategoriesAsync()
@@ -63,6 +77,11 @@ namespace APIMovies.Services
         public async Task<CategoryDto> GetCategoryAsync(int id)
         {
             var category = await _categoryRepository.GetCategoryAsync(id);
+
+            if (category == null)
+            {
+                throw new InvalidOperationException($"No se encontró la categoria con ID: '{id}'");
+            }
 
             return _mapper.Map<CategoryDto>(category);
         }
